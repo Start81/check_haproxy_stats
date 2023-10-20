@@ -1,7 +1,7 @@
 # check_haproxy_stats
 check_haproxy_stats is a Nagios check for Haproxy using the statistics page
 
-[Source](https://exchange.nagios.org/directory/Plugins/Network-Connections%2C-Stats-and-Bandwidth/check-haproxy-stats-%28over-ssh%29/details)
+[Source](https://exchange.nagios.org/directory/Plugins/Network-Connections%2C-Stats-and-Bandwidth/check-haproxy-stats-%28over-ssh%29/details) to the original script.
 
 ## prerequisites
 
