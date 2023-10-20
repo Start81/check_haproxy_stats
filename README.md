@@ -77,10 +77,6 @@ sudo ./check_haproxy_stats.pl -w 60 -c 80 -S /var/run/haproxy/admin.sock -p fron
 ./check_haproxy_stats.pl --url MyUrl --user supervision --Password mdp -p front_mpe
 ```
 
-Exemples de retour :
+you may get :
 ```shell
 Check haproxy OK - checked proxies: front_mpe|front_mpe-FRONTEND=1034;2400;3200;0;4000
-
-
-
-
