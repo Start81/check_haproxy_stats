@@ -11,7 +11,7 @@ sudo cpan File::Basename LWP::UserAgent URI::URL HTTP::Request IO::Socket::SSL I
 ```
 ## Use case 
 ```bash
-check_haproxy_stats.pl 1.1.5
+check_haproxy_stats.pl 1.1.6
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl 5.10.1
@@ -21,9 +21,9 @@ This program is distributed in the hope that it will be
 useful, but without any warranty; without even the implied
 warranty of merchantability or fitness for a particular purpose.
 
-check_haproxy_stats.pl is a Nagios check for Haproxy using the statistics page via local socket or https
+check_haproxy_stats.pl is a Nagios check for Haproxy using the statistics page via local socket or http(s)
 
-Usage: check_haproxy_stats.pl [-U <URL> -u <User> -P <password>]  [-p <proxy>] [-x <proxy>] [-m] [-n] [-s <servers>] [-i <REGEX>] [-w <threshold> ] [-c <threshold> ]  [-t <timeout>]
+Usage: check_haproxy_stats.pl [-U <URL> [-u <User> -P <password>]]  [-p <proxy>] [-x <proxy>] [-m] [-n] [-s <servers>] [-i <REGEX>] [-w <threshold> ] [-c <threshold> ]  [-t <timeout>]
 
  -?, --usage
    Print usage information
@@ -60,6 +60,8 @@ Usage: check_haproxy_stats.pl [-U <URL> -u <User> -P <password>]  [-p <proxy>] [
    Just dump haproxy stats and exit
  -s, --slave
    Check if the named serveur have no connexion Use comma to separate serveur in list .
+ -S, --ssl
+ The statistics page use SSL
  -t, --timeout=INTEGER
    Seconds before plugin times out (default: 30)
  -v, --verbose
@@ -71,12 +73,12 @@ sample :
 
 ```shell
 # NRPE
-sudo ./check_haproxy_stats.pl -w 60 -c 80 -S /var/run/haproxy/admin.sock -p front_mpe
+sudo ./check_haproxy_stats.pl -w 60 -c 80 -S /var/run/haproxy/admin.sock -p http-in
 
 # On monitoring poller 
-./check_haproxy_stats.pl --url MyUrl --user supervision --Password mdp -p front_mpe
+./check_haproxy_stats.pl -U demo.haproxy.org/  -p http-in  -S  
 ```
 
 you may get :
 ```shell
-Check haproxy OK - checked proxies: front_mpe|front_mpe-FRONTEND=1034;2400;3200;0;4000
+check_haproxy_stats.pl OK - checked proxies: http-in | http-in-FRONTEND=30;80;90;0;100
