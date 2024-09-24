@@ -214,7 +214,7 @@ my $haproxy;
 if ($url) {
     verb ($url);
     #Web client init
-	my $tmp_uri = "http://" . $url . ';csv';
+    my $tmp_uri = "http://" . $url . ';csv';
     $tmp_uri = "https://" . $url . ';csv' if ($o_use_ssl);
     my $ua = LWP::UserAgent->new(
             timeout  => 15,
