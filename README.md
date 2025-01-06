@@ -13,7 +13,7 @@ sudo cpan File::Basename LWP::UserAgent URI::URL HTTP::Request IO::Socket::SSL I
 ```
 ## Use case 
 ```bash
-check_haproxy_stats.pl 1.1.6
+check_haproxy_stats.pl 1.1.7
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl 5.10.1
@@ -25,7 +25,7 @@ warranty of merchantability or fitness for a particular purpose.
 
 check_haproxy_stats.pl is a Nagios check for Haproxy using the statistics page via local socket or http(s)
 
-Usage: check_haproxy_stats.pl [-U <URL> [-u <User> -P <password>]]  [-p <proxy>] [-x <proxy>] [-m] [-n] [-s <servers>] [-i <REGEX>] [-w <threshold> ] [-c <threshold> ]  [-t <timeout>]
+Usage: check_haproxy_stats.pl [-U <url> [-u <user> -P <password>] [-S] ] | [ -O <namedsocket> ]  [-p <proxy>] [-x <proxy>] [-r] [-s <servers>] [-i <REGEX>] [-w <threshold> ] [-c <threshold> ]  [-t <timeout>]
 
  -?, --usage
    Print usage information
@@ -38,7 +38,7 @@ Usage: check_haproxy_stats.pl [-U <URL> [-u <User> -P <password>]]  [-p <proxy>]
    for usage and examples.
  -U, --url=STRING
   Use HTTPS Statistics URL instead of socket the url is used like this https://$url;csv
- -S, --socket=STRING
+ -O, --socket=STRING
   Use named UNIX socket instead of default (/var/run/haproxy.sock)
  -m, --ignoremaint
  Assume servers in MAINT state to be ok.
@@ -61,7 +61,7 @@ Usage: check_haproxy_stats.pl [-U <URL> [-u <User> -P <password>]]  [-p <proxy>]
  -r, --raw
    Just dump haproxy stats and exit
  -s, --slave
-   Check if the named serveur have no connexion Use comma to separate serveur in list .
+   Check if the named serveur have no connexion Use comma to separate serveur in list.
  -S, --ssl
  The statistics page use SSL
  -t, --timeout=INTEGER
