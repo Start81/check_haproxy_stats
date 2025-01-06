@@ -29,7 +29,7 @@ use Monitoring::Plugin;
 use Data::Dumper;
 
 #open(STDERR, ">&STDOUT");
-Readonly our $VERSION => "1.1.6";
+Readonly our $VERSION => "1.1.7";
 # CHANGELOG:
 #   1.0.0   - first release
 #   1.0.1   - fixed empty message if all proxies are OK
@@ -44,7 +44,7 @@ Readonly our $VERSION => "1.1.6";
 #   1.1.4   - Update the check via url (Https only) Jdesmarest 16/01/2023
 #   1.1.5   - Update implement Monitoring::Plugin Jdesmarest 18/01/2023
 #   1.1.6   - BugFix With Haproxy demo page Add http support Jdesmarest 20/10/2023
-
+#   1.1.7   - BugFix with named socket Jdesmarest 06/01/2025
 my %check_statuses = (
     UNK     => "unknown",
     INI     => "initializing",
@@ -86,7 +86,7 @@ my $license = "This program is free software; you can redistribute it and/or mod
 . "useful, but without any warranty; without even the implied\n"
 . "warranty of merchantability or fitness for a particular purpose.\n";
 
-my $np = Monitoring::Plugin->new(  usage => "Usage: %s [-U <URL> [-u <User> -P <password>]]  [-p <proxy>] [-x <proxy>] [-m] [-n] [-s <servers>] [-i <REGEX>] [-w <threshold> ] [-c <threshold> ]  [-t <timeout>]  \n",
+my $np = Monitoring::Plugin->new(  usage => "Usage: %s [-U <url> [-u <user> -P <password>] [-S] ] | [ -O <namedsocket> ]  [-p <proxy>] [-x <proxy>] [-r] [-s <servers>] [-i <REGEX>] [-w <threshold> ] [-c <threshold> ]  [-t <timeout>]  \n",
     plugin => $me,
     shortname => $me,
     blurb => "$me is a Nagios check for Haproxy using the statistics page via local socket or http(s) ",
@@ -101,8 +101,8 @@ $np->add_arg(
     required => 0
 );
 $np->add_arg(
-    spec => 'socket|S=s',
-    help => "-S, --socket=STRING\n"
+    spec => 'socket|O=s',
+    help => "-O, --socket=STRING\n"
           . "  Use named UNIX socket instead of default (/var/run/haproxy.sock) ",
     required => 0
 );
@@ -169,7 +169,7 @@ $np->add_arg(
 $np->add_arg(
     spec => 'slave|s=s',
     help => "-s, --slave\n"  
-          . '   Check if the named serveur have no connexion Use comma to separate serveur in list .',
+          . '   Check if the named serveur have no connexion Use comma to separate serveur in list.',
     required => 0,
 );
 $np->add_arg(
@@ -199,6 +199,7 @@ $ignore_regex = $np->opts->ignoreregex if (defined $np->opts->ignoreregex);
 $proxy = $np->opts->proxy if (defined $np->opts->proxy);
 $no_proxy = $np->opts->noproxy if (defined $np->opts->noproxy);
 $verb = $np->opts->verbose ;
+$sock = $np->opts->socket if(defined $np->opts->socket); 
 my $o_use_ssl = 0;
 $o_use_ssl = $np->opts->ssl if (defined $np->opts->ssl);
 $slave = $np->opts->slave  if (defined $np->opts->slave);
@@ -306,7 +307,6 @@ my $compare_status;
 my %hash;
 @hash{@no_proxies} = undef;
 @proxies = grep{ not exists $hash{$_} } @proxies;
-
 foreach (@hastats) {
     chomp;
     next if /^#/;
@@ -328,23 +328,19 @@ foreach (@hastats) {
             $exitcode = $compare_status == 2 ? 2 :  $exitcode < 2 ? $compare_status : $exitcode;
             push(@warnings,sprintf "%s:%s sessions: %.2f%%; ", $data[$pxname], $data[$svname], $sratio * 100) if ($compare_status==1);
             push(@criticals,sprintf "%s:%s sessions: %.2f%%; ", $data[$pxname], $data[$svname], $sratio * 100) if ($compare_status==2);
-
         }
         ++$checked;
     }
-
     # Check of BACKENDS
     if ($data[$svname] eq 'BACKEND') {
         next if ($ignore_regex && $data[$pxname] =~ ".*${ignore_regex}.*");
         if ($data[$status] ne 'UP') {
             push(@criticals,sprintf "BACKEND: %s is %s; ", $data[$pxname], $data[$status]);
-
         }
     # Check of FRONTENDS
     } elsif ($data[$svname] eq 'FRONTEND') {
         if ($data[$status] ne 'OPEN') {
             push(@criticals,sprintf "FRONTEND: %s is %s; ", $data[$pxname], $data[$status]);
-
         }
     # Check of servers
     } else { 
@@ -377,7 +373,6 @@ foreach (@hastats) {
 
 $np->plugin_exit('CRITICAL', join(', ', @criticals)) if (scalar @criticals > 0);
 $np->plugin_exit('WARNING', join(', ', @warnings)) if (scalar @warnings > 0);
-
 $msg = @proxies ? sprintf("checked proxies: %s", join ', ', sort @proxies) : "checked $checked proxies.";
 if ($checked) {
     $np->plugin_exit('OK', $msg ) ;
